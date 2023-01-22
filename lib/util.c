@@ -2,13 +2,6 @@
 #include "string.h"
 #include <sys/socket.h>
 
-char *create_str(int n) {
-    char *str = malloc(n + 1);
-    memset(str, 'a', n);
-    str[n] = '\0';
-    return str;
-}
-
 int recv_all(int fd, char *buf, long size) {
     while (size > 0) {
         ssize_t recvd = recv(fd, buf, size, 0);

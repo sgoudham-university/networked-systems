@@ -20,11 +20,3 @@ int recv_all(int fd, char *buf, long size);
  * @return -1 for failure to read bytes
  */
 int send_all(int connfd, char *buf);
-
-/**
- * Create a string that is length of 'n'
- *
- * @param n the length of the string
- * @return the string of length 'n'
- */
-char *create_str(int n);

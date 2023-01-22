@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.24)
 set(CMAKE_C_STANDARD 23)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/dist")
 
 project(lab-one C)
 
-add_executable(client)
-add_executable(server)
-target_sources(client PRIVATE src/util.c src/util.h src/client.c)
-target_sources(server PRIVATE src/util.c src/util.h src/server.c)
-install(TARGETS client server)
+add_executable(hello_client)
+add_executable(hello_server)
+target_sources(hello_client PRIVATE ../lib/util.c ../lib/util.h src/hello_client.c)
+target_sources(hello_server PRIVATE ../lib/util.c ../lib/util.h src/hello_server.c)
+install(TARGETS hello_client hello_server)
