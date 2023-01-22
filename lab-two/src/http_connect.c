@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
     char buf[BUFLEN + 1];
     for (;;) {
         ssize_t recv_count = recv_all(connfd, buf, BUFLEN);
-        if (strcmp(buf, "") == 0) {
+        if (*buf == '\0') {
             break;
         }
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
             printf("Error: Receiving Data\n");
         }
 
-        buf[0] = '\0';
+        memset(buf, '\0', sizeof(buf));
     }
 
     close(connfd);
