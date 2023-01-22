@@ -8,7 +8,6 @@
 
 struct addrinfo *retrieve_addresses(char hostname[]) {
     struct addrinfo hints;
-    // I think this is going to segfault but let's see :D
     struct addrinfo *ai0;
 
     // https://www.ibm.com/docs/en/zos/2.2.0?topic=functions-getaddrinfo-get-address-information
