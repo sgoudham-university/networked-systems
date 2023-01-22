@@ -1,14 +1,15 @@
 #include <stdio.h>
-#include "util.h"
+#include "../../lib/util.h"
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 
-struct addrinfo *retrieve_addresses(char hostname[]) {
+#define BUFLEN 256
+
+struct addrinfo *retrieve_addresses(char *hostname, char *port) {
     struct addrinfo hints;
-    // I think this is going to segfault but let's see :D
     struct addrinfo *ai0;
 
     // https://www.ibm.com/docs/en/zos/2.2.0?topic=functions-getaddrinfo-get-address-information
@@ -21,7 +22,7 @@ struct addrinfo *retrieve_addresses(char hostname[]) {
     // of a linked list of struct addrinfo values containing the possible
     // addresses of the server.
     int i;
-    if ((i = getaddrinfo(hostname, "5000", &hints, &ai0)) != 0) {
+    if ((i = getaddrinfo(hostname, port, &hints, &ai0)) != 0) {
         printf("Error: unable to lookup IP address: %s", gai_strerror(i));
         exit(-1);
     }
@@ -61,21 +62,38 @@ int main(int argc, char *argv[]) {
     if (argc < 2) {
         printf("Host Name Missing!\n");
         exit(-1);
-    } else if (argc > 2) {
-        printf("Please Only Enter The Host Name!\n");
+    } else if (argc < 3) {
+        printf("Port Missing\n");
         exit(-1);
     }
+    char *hostname = argv[1];
+    char *port = argv[2];
 
-    // TODO: Figure out how to recv bytes without a specified length
-    // Struggling to figure out how to read in an [infinite] amount of
-    // bytes when the buf has to be defined first for it to read the
-    // data into.
-
-    char* hostname = argv[1];
-    struct addrinfo *addresses = retrieve_addresses(hostname);
+    struct addrinfo *addresses = retrieve_addresses(hostname, port);
     int connfd = connect_to_device(addresses, hostname);
 
-    send_all(connfd, "Hello World!");
+    char http_request[100];
+    if (sprintf(http_request, "GET / HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", hostname) < 0) {
+        exit(-1);
+    }
+    send_all(connfd, http_request);
+
+    char buf[BUFLEN + 1];
+    for (;;) {
+        ssize_t recv_count = recv_all(connfd, buf, BUFLEN);
+        if (strcmp(buf, "") == 0) {
+            break;
+        }
+
+        if (recv_count == 0) {
+            strcat(buf, "\0");
+            printf("%s", buf);
+        } else {
+            printf("Error: Receiving Data\n");
+        }
+
+        buf[0] = '\0';
+    }
 
     close(connfd);
     freeaddrinfo(addresses);

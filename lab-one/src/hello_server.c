@@ -1,4 +1,4 @@
-#include "util.h"
+#include "../../lib/util.h"
 #include <stdio.h>
 #include <string.h>
 #include <netinet/in.h>
@@ -79,10 +79,10 @@ int main() {
     printf("Listening For Connections\n");
     int connfd = accept_client(fd);
 
-    char buf[BUFLEN];
-    ssize_t rcount = recv_all(connfd, buf, BUFLEN);
+    char buf[BUFLEN + 1];
+    ssize_t recv_count = recv_all(connfd, buf, BUFLEN);
 
-    if (rcount == 0) {
+    if (recv_count == 0) {
         strcat(buf, "\0");
         printf("Data Received: %s\n", buf);
     } else {

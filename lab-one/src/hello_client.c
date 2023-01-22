@@ -1,12 +1,12 @@
 #include <stdio.h>
-#include "util.h"
+#include "../../lib/util.h"
 #include <sys/socket.h>
 #include <netdb.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 
-struct addrinfo *retrieve_addresses(char hostname[]) {
+struct addrinfo *retrieve_addresses(char *hostname, char *port) {
     struct addrinfo hints;
     struct addrinfo *ai0;
 
@@ -20,7 +20,7 @@ struct addrinfo *retrieve_addresses(char hostname[]) {
     // of a linked list of struct addrinfo values containing the possible
     // addresses of the server.
     int i;
-    if ((i = getaddrinfo(hostname, "5000", &hints, &ai0)) != 0) {
+    if ((i = getaddrinfo(hostname, port, &hints, &ai0)) != 0) {
         printf("Error: unable to lookup IP address: %s", gai_strerror(i));
         exit(-1);
     }
@@ -45,7 +45,7 @@ int connect_to_device(struct addrinfo *addresses, char *hostname) {
             close(fd);
             continue;
         }
-        break;     // successfully connected
+        break; // successfully connected
     }
 
     if (ai == NULL) {
@@ -60,13 +60,14 @@ int main(int argc, char *argv[]) {
     if (argc < 2) {
         printf("Host Name Missing!\n");
         exit(-1);
-    } else if (argc > 2) {
-        printf("Please Only Enter The Host Name!\n");
+    } else if (argc < 3) {
+        printf("Port Missing\n");
         exit(-1);
     }
-
     char* hostname = argv[1];
-    struct addrinfo *addresses = retrieve_addresses(hostname);
+    char* port = argv[2];
+
+    struct addrinfo *addresses = retrieve_addresses(hostname, port);
     int connfd = connect_to_device(addresses, hostname);
 
     send_all(connfd, "Hello World!");
