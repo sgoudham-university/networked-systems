@@ -47,7 +47,7 @@ int connect_to_device(struct addrinfo *addresses, char *hostname) {
             close(fd);
             continue;
         }
-        break;     // successfully connected
+        break; // successfully connected
     }
 
     if (ai == NULL) {
