@@ -80,10 +80,10 @@ int main() {
     int connfd = accept_client(fd);
 
     char buf[BUFLEN + 1];
+    buf[BUFLEN] = '\0';
     ssize_t recv_count = recv_all(connfd, buf, BUFLEN);
 
-    if (recv_count == 0) {
-        strcat(buf, "\0");
+    if (recv_count >= 0) {
         printf("Data Received: %s\n", buf);
     } else {
         printf("Error: Receiving Data\n");

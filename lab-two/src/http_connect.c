@@ -66,36 +66,37 @@ int main(int argc, char *argv[]) {
         printf("Port Missing\n");
         exit(-1);
     }
+
     char *hostname = argv[1];
     char *port = argv[2];
+    char *http_protocol = "GET / HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n";
+    char *http_request = malloc(sizeof(char) * (strlen(http_protocol) + strlen(hostname) + 1));
+    if (sprintf(http_request, http_protocol, hostname) < 0) {
+        exit(-1);
+    }
 
     struct addrinfo *addresses = retrieve_addresses(hostname, port);
     int connfd = connect_to_device(addresses, hostname);
-
-    char http_request[100];
-    if (sprintf(http_request, "GET / HTTP/1.1\r\nHost: %s\r\nConnection: close\r\n\r\n", hostname) < 0) {
-        exit(-1);
-    }
     send_all(connfd, http_request);
 
     char buf[BUFLEN + 1];
     for (;;) {
         ssize_t recv_count = recv_all(connfd, buf, BUFLEN);
+        buf[recv_count] = '\0';
+
         if (*buf == '\0') {
             break;
         }
 
-        if (recv_count == 0) {
-            strcat(buf, "\0");
+        if (recv_count >= 0) {
             printf("%s", buf);
         } else {
             printf("Error: Receiving Data\n");
         }
-
-        memset(buf, '\0', sizeof(buf));
     }
 
     close(connfd);
     freeaddrinfo(addresses);
+    free(http_request);
     return 0;
 }

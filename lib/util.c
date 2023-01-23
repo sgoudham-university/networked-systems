@@ -2,7 +2,9 @@
 #include "string.h"
 #include <sys/socket.h>
 
-int recv_all(int fd, char *buf, long size) {
+ssize_t recv_all(int fd, char *buf, long size) {
+    ssize_t total_recvd = 0;
+
     while (size > 0) {
         ssize_t recvd = recv(fd, buf, size, 0);
         if (recvd == 0) {
@@ -12,10 +14,11 @@ int recv_all(int fd, char *buf, long size) {
             return -1;
         }
         buf += recvd;
+        total_recvd += recvd;
         size -= recvd;
     }
 
-    return 0;
+    return total_recvd;
 }
 
 
